@@ -44,7 +44,7 @@ runs:
       shell: bash
       run: |
         npm i
-        mkdir -p $ROOT_DIR/react-logs
+        mkdir -p $ROOT_DIR/test_report/react-logs
 
     - name: Setup auth-react test server
       working-directory: ${{ inputs.path }}/test/server/
@@ -57,13 +57,12 @@ runs:
         TEST_MODE: testing
         NODE_PORT: 8082
         NODE_TAG: ${{ inputs.node-version }}
-        ROOT_DIR: ${{ inputs.path }}
       shell: bash
       run: |
         npm i git+https://github.com:supertokens/supertokens-node.git#$NODE_TAG
         npm i
 
-        node . >> $ROOT_DIR/test_report/react-logs/backend.log 2>&1 &
+        node . >> ../../test_report/react-logs/backend.log 2>&1 &
 
     - name: Setup auth-react frontend application
       working-directory: ${{ inputs.path }}/examples/for-tests/
@@ -76,9 +75,8 @@ runs:
         TEST_MODE: testing
         NODE_PORT: 8082
         NODE_TAG: ${{ inputs.node-version }}
-        ROOT_DIR: ${{ inputs.path }}
       shell: bash
-      run: cat | npm run start >> $ROOT_DIR/test_report/react-logs/frontend.log 2>&1 &
+      run: cat | npm run start >> ../../test_report/react-logs/frontend.log 2>&1 &
 
     - name: Run tests
       working-directory: ${{ inputs.path }}
