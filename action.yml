@@ -79,6 +79,7 @@ runs:
       shell: bash
       # run: cat | npm run start >> ../../test_report/react-logs/frontend.log 2>&1 &
       run: |
+        npm i
         npm run start &
         sleep 10
 
