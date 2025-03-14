@@ -81,7 +81,6 @@ runs:
       run: |
         npm i
         npm run start &
-        sleep 10
 
     - name: Run tests
       working-directory: ${{ inputs.path }}
@@ -103,6 +102,10 @@ runs:
       shell: bash
       # Doing it in the shell since the Reporter's `transformers` don't seem to work
       run: sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test_report/test-results.xml
+
+    - if: always()
+      name: SSH
+      uses: mxschmitt/action-tmate@v3
 
     - if: always()
       name: Reporter
