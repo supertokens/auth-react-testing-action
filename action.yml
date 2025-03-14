@@ -1,0 +1,95 @@
+name: Run supertokens-auth-react tests
+description:
+  Will clone the `supertokens-auth-react` repo in it's own folder in the workspace directory.
+  Expects `node` to be installed. The test-server and core need to be running before this action.
+
+inputs:
+  auth-react-version:
+    description: The git ref to clone, usually a version tag
+    required: true
+
+  node-version:
+    description: The git ref to use for `supertokens-node`, usually a version tag
+    required: true
+
+  check-name-suffix:
+    description: Suffix to append to check names (usually matrix values)
+    required: true
+  
+  path:
+    description: Relative path where the repo will be cloned
+    required: false
+    default: supertokens-auth-react
+
+  should-clone:
+    description: Whether the `supertokens-auth-react` repo should be cloned
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+
+  steps:
+    - if: ${{ inputs.should-clone }}
+      uses: actions/checkout@v4
+      with:
+        repository: supertokens/supertokens-auth-react
+        ref: ${{ inputs.auth-react-version }}
+        path: ${{ inputs.path }}
+
+    - name: Setup auth-react test servers
+      working-directory: ${{ inputs.path }}
+      env:
+        CI: true
+        BROWSER: none
+        PORT: 3031
+        REACT_APP_API_PORT: 8083
+        TEST_MODE: testing
+        NODE_PORT: 8082
+        NODE_TAG: ${{ inputs.node-version }}
+      shell: bash
+      run: |
+        npm init
+        (cd ./examples/for-tests && npm run link) # this is there because in linux machine, postinstall in npm doesn't work..
+        cd ./test/server/
+        npm i git+https://github.com:supertokens/supertokens-node.git#$NODE_TAG
+        npm i
+
+        (cd test/server/ && node . >> ~/test_report/react-logs/backend.log 2>&1 &)
+        (cd ./examples/for-tests/ && cat | npm run start >> ~/test_report/react-logs/frontend.log 2>&1 &)
+
+    - name: Run tests
+      working-directory: ${{ inputs.path }}
+      env:
+        CI: true
+        BROWSER: none
+        PORT: 3031
+        REACT_APP_API_PORT: 8083
+        TEST_MODE: testing
+        NODE_PORT: 8082
+      shell: bash
+      run: |
+        npm test-e2e
+
+    - if: always()
+      name: Fix paths
+      working-directory: ${{ inputs.path }}
+      shell: bash
+      # Doing it in the shell since the Reporter's `transformers` don't seem to work
+      run: sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test-report/test-results.xml
+
+    - if: always()
+      name: Reporter
+      # Alternative: dorny/test-reporter@v1 - does not create a summary
+      uses: mikepenz/action-junit-report@v5
+      with:
+        report_paths: ${{ inputs.path }}/test-results.xml
+        check_name: Auth React Tests ${{ inputs.check-name-suffix }}
+        # Include table with all test results in the summary
+        detailed_summary: true
+        # Group the testcases by test suite in the detailed_summary
+        group_suite: true
+        # Fail if no test are found.
+        require_tests: true
+        # Fail the build in case of a test failure.
+        fail_on_failure: true
