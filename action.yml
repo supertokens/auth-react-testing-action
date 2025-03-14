@@ -69,7 +69,7 @@ runs:
         SCREENSHOT_ROOT: ${{ inputs.path }}/test_report/screenshots
       shell: bash
       run: |
-        npm test-e2e
+        npm run test-e2e
 
     - if: always()
       name: Fix paths
