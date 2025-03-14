@@ -78,7 +78,9 @@ runs:
         NODE_TAG: ${{ inputs.node-version }}
       shell: bash
       # run: cat | npm run start >> ../../test_report/react-logs/frontend.log 2>&1 &
-      run: npm run start &
+      run: |
+        npm run start &
+        sleep 10
 
     - name: Run tests
       working-directory: ${{ inputs.path }}
