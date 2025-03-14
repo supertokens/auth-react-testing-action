@@ -44,6 +44,7 @@ runs:
         BROWSER: none
         PORT: 3031
         REACT_APP_API_PORT: 8083
+        APP_SERVER: 8083
         TEST_MODE: testing
         NODE_PORT: 8082
         NODE_TAG: ${{ inputs.node-version }}
@@ -67,6 +68,7 @@ runs:
         REACT_APP_API_PORT: 8083
         TEST_MODE: testing
         NODE_PORT: 8082
+        SCREENSHOT_ROOT: ${{ inputs.path }}/test_report/screenshots
       shell: bash
       run: |
         npm test-e2e
@@ -76,14 +78,14 @@ runs:
       working-directory: ${{ inputs.path }}
       shell: bash
       # Doing it in the shell since the Reporter's `transformers` don't seem to work
-      run: sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test-report/test-results.xml
+      run: sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test_report/test-results.xml
 
     - if: always()
       name: Reporter
       # Alternative: dorny/test-reporter@v1 - does not create a summary
       uses: mikepenz/action-junit-report@v5
       with:
-        report_paths: ${{ inputs.path }}/test-results.xml
+        report_paths: ${{ inputs.path }}/test_report/test-results.xml
         check_name: Auth React Tests ${{ inputs.check-name-suffix }}
         # Include table with all test results in the summary
         detailed_summary: true
