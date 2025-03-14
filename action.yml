@@ -62,7 +62,8 @@ runs:
         npm i git+https://github.com:supertokens/supertokens-node.git#$NODE_TAG
         npm i
 
-        node . >> ../../test_report/react-logs/backend.log 2>&1 &
+        # node . >> ../../test_report/react-logs/backend.log 2>&1 &
+        node . &
 
     - name: Setup auth-react frontend application
       working-directory: ${{ inputs.path }}/examples/for-tests/
@@ -76,7 +77,8 @@ runs:
         NODE_PORT: 8082
         NODE_TAG: ${{ inputs.node-version }}
       shell: bash
-      run: cat | npm run start >> ../../test_report/react-logs/frontend.log 2>&1 &
+      # run: cat | npm run start >> ../../test_report/react-logs/frontend.log 2>&1 &
+      run: npm run start &
 
     - name: Run tests
       working-directory: ${{ inputs.path }}
