@@ -44,14 +44,15 @@ runs:
       shell: bash
       run: |
         npm i
-        mkdir -p $ROOT_DIR/test_report/react-logs
+        mkdir -p ./test_report/react-logs
+        mkdir -p ./test_report/screenshots
 
     - name: Setup auth-react test server
       working-directory: ${{ inputs.path }}/test/server/
       env:
-        CI: true
-        BROWSER: none
-        PORT: 3031
+        # CI: true
+        # BROWSER: none
+        # PORT: 3031
         REACT_APP_API_PORT: 8083
         APP_SERVER: 8083
         TEST_MODE: testing
@@ -62,8 +63,7 @@ runs:
         npm i git+https://github.com:supertokens/supertokens-node.git#$NODE_TAG
         npm i
 
-        # node . >> ../../test_report/react-logs/backend.log 2>&1 &
-        node . &
+        node . &> ../../test_report/react-logs/backend.log &
 
     - name: Setup auth-react frontend application
       working-directory: ${{ inputs.path }}/examples/for-tests/
@@ -77,10 +77,9 @@ runs:
         NODE_PORT: 8082
         NODE_TAG: ${{ inputs.node-version }}
       shell: bash
-      # run: cat | npm run start >> ../../test_report/react-logs/frontend.log 2>&1 &
       run: |
         npm i
-        npm run start &
+        npm run start &> ../../test_report/react-logs/frontend.log &
 
     - if: always()
       name: SSH
@@ -89,10 +88,11 @@ runs:
     - name: Run tests
       working-directory: ${{ inputs.path }}
       env:
-        CI: true
-        BROWSER: none
-        PORT: 3031
-        REACT_APP_API_PORT: 8083
+        # CI: true
+        # BROWSER: none
+        # PORT: 3031
+        # REACT_APP_API_PORT: 8083
+        APP_SERVER: 8083
         TEST_MODE: testing
         NODE_PORT: 8082
         SCREENSHOT_ROOT: ${{ inputs.path }}/test_report/screenshots
