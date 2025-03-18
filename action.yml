@@ -15,7 +15,7 @@ inputs:
   check-name-suffix:
     description: Suffix to append to check names (usually matrix values)
     required: true
-  
+
   path:
     description: Relative path where the repo will be cloned
     required: false
@@ -81,6 +81,10 @@ runs:
       run: |
         npm i
         npm run start &
+
+    - if: always()
+      name: SSH
+      uses: mxschmitt/action-tmate@v3
 
     - name: Run tests
       working-directory: ${{ inputs.path }}
