@@ -124,7 +124,14 @@ runs:
       run: |
         npx mocha
 
-    - if: failure()
+    - if: always()
+      name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Auth React Tests ${{ inputs.check-name-suffix }}
+        path: ${{ inputs.path }}/test_report
+
+    - if: always()
       name: SSH
       uses: mxschmitt/action-tmate@v3
 
