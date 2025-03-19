@@ -105,7 +105,12 @@ runs:
         wait-for $NODE_PORT "test server"
         wait-for $APP_SERVER "app server"
 
-        sleep 5
+        timeout=60
+        until [ $timeout -le 0 ] || (curl -s localhost:$1 &> /dev/null); do
+          echo "Explicit wait to ensure things work fine [${timeout}s remaining]"
+          sleep 5
+          timeout=$(( timeout - 5 ))
+        done
 
     # - if: always()
     #   name: SSH
@@ -119,7 +124,7 @@ runs:
         NODE_PORT: 8082
         TEST_MODE: testing
         # Step-specific
-        SCREENSHOT_ROOT: ${{ inputs.path }}/test_report/screenshots
+        SCREENSHOT_ROOT: ${{ github.workspace }}/${{ inputs.path }}/test_report/screenshots
       shell: bash
       run: |
         npx mocha
