@@ -55,8 +55,8 @@ runs:
         # PORT: 3031
         # REACT_APP_API_PORT: 8083
         # APP_SERVER: 8083
-        TEST_MODE: testing
-        NODE_PORT: 8082
+        # TEST_MODE: testing
+        # NODE_PORT: 8082
         NODE_TAG: ${{ inputs.node-version }}
       shell: bash
       run: |
@@ -73,7 +73,7 @@ runs:
         PORT: 3031
         REACT_APP_API_PORT: ${{ env.APP_SERVER }}
         # APP_SERVER: 8083
-        TEST_MODE: testing
+        # TEST_MODE: testing
         # NODE_PORT: 8082
         # NODE_TAG: ${{ inputs.node-version }}
       shell: bash
@@ -81,17 +81,17 @@ runs:
         npm i
         npm run start &> ../../test_report/react-logs/frontend.log &
 
-    # - if: always()
-    #   name: SSH
-    #   uses: mxschmitt/action-tmate@v3
+    - if: always()
+      name: SSH
+      uses: mxschmitt/action-tmate@v3
 
     - name: Run tests
       working-directory: ${{ inputs.path }}
       env:
         # REACT_APP_API_PORT: 8083
         # APP_SERVER: 8083
-        TEST_MODE: testing
-        NODE_PORT: 8082
+        # TEST_MODE: testing
+        # NODE_PORT: 8082
         SCREENSHOT_ROOT: ${{ inputs.path }}/test_report/screenshots
       shell: bash
       run: |
