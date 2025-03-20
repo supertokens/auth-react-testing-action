@@ -91,7 +91,6 @@ runs:
         npm run prep
 
     - uses: bissolli/gh-action-persist-workspace@v2
-      working-directory: ${{ inputs.path }}
       with:
         action: persist
         artifactName: auth-react-${{ inputs.fdi-version }}
