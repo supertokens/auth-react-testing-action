@@ -26,7 +26,6 @@ runs:
 
   steps:
     - uses: bissolli/gh-action-persist-workspace@v2
-      working-directory: ${{ inputs.path }}
       with:
         action: retrieve
         artifactName: auth-react-${{ inputs.fdi-version }}
