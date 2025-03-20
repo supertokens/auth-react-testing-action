@@ -27,6 +27,31 @@ inputs:
     required: false
     default: 'true'
 
+outputs:
+  AUTH_REACT__LOG_DIR:
+    description: Log directory for various processes
+    value: ${{ steps.envs.outputs.AUTH_REACT__LOG_DIR }}
+
+  AUTH_REACT__SCREENSHOT_DIR:
+    description: Screenshot directory for tests
+    value: ${{ steps.envs.outputs.AUTH_REACT__SCREENSHOT_DIR }}
+
+  AUTH_REACT__APP_SERVER:
+    description: Port for the SDK application server
+    value: ${{ steps.envs.outputs.AUTH_REACT__APP_SERVER }}
+
+  AUTH_REACT__NODE_PORT:
+    description: Port for the auth-react Node test-server
+    value: ${{ steps.envs.outputs.AUTH_REACT__NODE_PORT }}
+
+  AUTH_REACT__TEST_MODE:
+    description: Test mode to use in tests
+    value: ${{ steps.envs.outputs.AUTH_REACT__TEST_MODE }}
+
+  AUTH_REACT__PORT:
+    description: Port for auth-react frontend application
+    value: ${{ steps.envs.outputs.AUTH_REACT__PORT }}
+
 runs:
   using: composite
 
@@ -40,14 +65,15 @@ runs:
         path: ${{ inputs.path }}
 
     - name: Setup envs
+      id: envs
       shell: bash
       run: |
-        echo "AUTH_REACT__LOG_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/logs" >> $GITHUB_ENV
-        echo "AUTH_REACT__SCREENSHOT_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/screenshots" >> $GITHUB_ENV
-        echo "AUTH_REACT__APP_SERVER=8083" >> $GITHUB_ENV
-        echo "AUTH_REACT__NODE_PORT=8082" >> $GITHUB_ENV
-        echo "AUTH_REACT__TEST_MODE=testing" >> $GITHUB_ENV
-        echo "AUTH_REACT__PORT=3031" >> $GITHUB_ENV
+        echo "AUTH_REACT__LOG_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/logs" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
+        echo "AUTH_REACT__SCREENSHOT_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/screenshots" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
+        echo "AUTH_REACT__APP_SERVER=8083" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
+        echo "AUTH_REACT__NODE_PORT=8082" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
+        echo "AUTH_REACT__TEST_MODE=testing" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
+        echo "AUTH_REACT__PORT=3031" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
 
     - name: Setup auth-react
       working-directory: ${{ inputs.path }}
