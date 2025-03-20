@@ -75,6 +75,12 @@ runs:
         echo "AUTH_REACT__TEST_MODE=testing" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
         echo "AUTH_REACT__PORT=3031" | tee -a $GITHUB_OUTPUT $GITHUB_ENV
 
+    - name: Debug
+      shell: bash
+      run: |
+        cat $GITHUB_OUTPUT
+        cat $GITHUB_ENV
+
     - name: Setup auth-react
       working-directory: ${{ inputs.path }}
       env:
