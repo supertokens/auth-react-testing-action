@@ -112,10 +112,6 @@ runs:
           timeout=$(( timeout - 5 ))
         done
 
-    # - if: always()
-    #   name: SSH
-    #   uses: mxschmitt/action-tmate@v3
-
     - name: Run tests
       working-directory: ${{ inputs.path }}
       env:
@@ -130,17 +126,6 @@ runs:
         npx mocha
 
     - if: always()
-      name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: Auth React Tests ${{ inputs.check-name-suffix }}
-        path: ${{ inputs.path }}/test_report
-
-    # - if: failure()
-    #   name: SSH
-    #   uses: mxschmitt/action-tmate@v3
-
-    - if: always()
       name: Fix paths
       working-directory: ${{ inputs.path }}
       shell: bash
@@ -150,6 +135,14 @@ runs:
 
         # Make mochawesome screenshot paths relative. Workaround till we update it in auth-react.
         sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test_report/screenshots|../screenshots|g" test_report/mochawesome/mochawesome.html
+
+    # TODO: Figure out a generic way to get the app server logs here too
+    - if: always()
+      name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Auth React Tests ${{ inputs.check-name-suffix }}
+        path: ${{ inputs.path }}/test_report
 
     - if: always()
       name: Reporter
