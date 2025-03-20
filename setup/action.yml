@@ -1,0 +1,97 @@
+name: Setup supertokens-auth-react tests
+description:
+  Clone the `supertokens-auth-react` repo in it's own folder in the workspace directory.
+  Setup the environment and cache it for use in parallel runs.
+  Expects `node` to be installed.
+
+inputs:
+  auth-react-version:
+    description: The git ref to clone, usually a version tag
+    required: true
+
+  node-sdk-version:
+    description: The git ref to use for `supertokens-node`, usually a version tag
+    required: true
+
+  fdi-version:
+    description: The FDI version to test for
+    required: true
+
+  path:
+    description: Relative path where the repo will be cloned
+    required: false
+    default: supertokens-auth-react
+
+  should-clone:
+    description: Whether the `supertokens-auth-react` repo should be cloned
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+
+  steps:
+    - if: ${{ inputs.should-clone }}
+      uses: actions/checkout@v4
+      with:
+        repository: supertokens/supertokens-auth-react
+        # ref: ${{ inputs.auth-react-version }}
+        ref: ci/github-actions/auth-react/v0.48.0
+        path: ${{ inputs.path }}
+
+    - name: Setup envs
+      shell: bash
+      run: |
+        echo "AUTH_REACT__LOG_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/logs" >> $GITHUB_ENV
+        echo "AUTH_REACT__SCREENSHOT_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/screenshots" >> $GITHUB_ENV
+        echo "AUTH_REACT__APP_SERVER=8083" >> $GITHUB_ENV
+        echo "AUTH_REACT__NODE_PORT=8082" >> $GITHUB_ENV
+        echo "AUTH_REACT__TEST_MODE=testing" >> $GITHUB_ENV
+        echo "AUTH_REACT__PORT=3031" >> $GITHUB_ENV
+
+    - name: Setup auth-react
+      working-directory: ${{ inputs.path }}
+      env:
+        ROOT_DIR: ${{ inputs.path }}
+      shell: bash
+      run: |
+        npm i
+        mkdir -p $AUTH_REACT__LOG_DIR
+        mkdir -p $AUTH_REACT__SCREENSHOT_DIR
+
+    - name: Setup auth-react test server
+      working-directory: ${{ inputs.path }}/test/server/
+      env:
+        # Common
+        APP_SERVER: ${{ env.AUTH_REACT__APP_SERVER }}
+        NODE_PORT: ${{ env.AUTH_REACT__NODE_PORT }}
+        TEST_MODE: ${{ env.AUTH_REACT__TEST_MODE }}
+        # Step-specific
+        NODE_TAG: ${{ inputs.node-sdk-version }}
+      shell: bash
+      run: |
+        npm i git+https://github.com:supertokens/supertokens-node.git#$NODE_TAG
+        npm i
+
+    - name: Setup auth-react frontend application
+      working-directory: ${{ inputs.path }}/examples/for-tests/
+      env:
+        # Common
+        APP_SERVER: ${{ env.AUTH_REACT__APP_SERVER }}
+        NODE_PORT: ${{ env.AUTH_REACT__NODE_PORT }}
+        TEST_MODE: ${{ env.AUTH_REACT__TEST_MODE }}
+        # Step-specific
+        CI: true
+        BROWSER: none
+        PORT: ${{ env.AUTH_REACT__PORT }}
+        REACT_APP_API_PORT: ${{ env.AUTH_REACT__APP_SERVER }}
+      shell: bash
+      run: |
+        npm i
+        npm run prep
+
+    - uses: bissolli/gh-action-persist-workspace@v2
+      working-directory: ${{ inputs.path }}
+      with:
+        action: persist
+        artifactName: auth-react-${{ inputs.fdi-version }}
