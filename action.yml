@@ -136,9 +136,9 @@ runs:
         name: Auth React Tests ${{ inputs.check-name-suffix }}
         path: ${{ inputs.path }}/test_report
 
-    - if: failure()
-      name: SSH
-      uses: mxschmitt/action-tmate@v3
+    # - if: failure()
+    #   name: SSH
+    #   uses: mxschmitt/action-tmate@v3
 
     - if: always()
       name: Fix paths
