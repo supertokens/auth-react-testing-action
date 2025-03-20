@@ -130,6 +130,7 @@ runs:
         npx mocha --bail
 
     - name: Re-Run tests
+      if: failure()
       working-directory: ${{ inputs.path }}
       env:
         # Common
