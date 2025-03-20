@@ -105,7 +105,7 @@ runs:
         wait-for $NODE_PORT "test server"
         wait-for $APP_SERVER "app server"
 
-        timeout=60
+        timeout=10
         until [ $timeout -le 0 ] || (curl -s localhost:$1 &> /dev/null); do
           echo "Explicit wait to ensure things work fine [${timeout}s remaining]"
           sleep 5
@@ -144,8 +144,12 @@ runs:
       name: Fix paths
       working-directory: ${{ inputs.path }}
       shell: bash
-      # Doing it in the shell since the Reporter's `transformers` don't seem to work
-      run: sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test_report/test-results.xml
+      run: |
+        # Doing it in the shell since the Reporter's `transformers` don't seem to work
+        sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test_report/test-results.xml
+
+        # Make mochawesome screenshot paths relative. Workaround till we update it in auth-react.
+        sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test_report/screenshots|../screenshots|g" test_report/mochawesome/mochawesome.html
 
     - if: always()
       name: Reporter
