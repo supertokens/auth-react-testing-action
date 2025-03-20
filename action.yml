@@ -87,7 +87,8 @@ runs:
           timeout=$(( timeout - 5 ))
         done
 
-    - uses: mxschmitt/action-tmate@v3
+    - if: always()
+      uses: mxschmitt/action-tmate@v3
 
     # - name: Run tests
     #   working-directory: ${{ inputs.path }}
