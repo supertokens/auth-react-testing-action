@@ -79,7 +79,8 @@ runs:
         echo "AUTH_REACT__TEST_MODE=testing" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
         echo "AUTH_REACT__PORT=3031" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
 
-        echo "specs=$(find '${{ github.workspace }}/${{ inputs.path }}/test/end-to-end' -name '*.test.js' -type f | jq -Rsc 'split("\n")[:-1]')" | tee -a "$GITHUB_OUTPUT"
+        cd ${{ github.workspace }}/${{ inputs.path }}
+        echo "specs=$(find 'test/end-to-end' -name '*.test.js' -type f | jq -Rsc 'split("\n")[:-1]')" | tee -a "$GITHUB_OUTPUT"
 
     - name: Setup auth-react
       working-directory: ${{ inputs.path }}
