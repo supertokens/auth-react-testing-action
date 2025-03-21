@@ -21,6 +21,9 @@ inputs:
     required: false
     default: supertokens-auth-react
 
+  spec:
+    description: Argument to pass to `--spec` in the test run
+
 runs:
   using: composite
 
@@ -97,7 +100,7 @@ runs:
         # Step-specific
         SCREENSHOT_ROOT: ${{ env.AUTH_REACT__SCREENSHOT_DIR }}
       shell: bash
-      run: npx mocha
+      run: npx mocha --spec ${{ inputs.spec }}
 
     - if: always()
       name: Fix paths
