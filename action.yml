@@ -87,52 +87,49 @@ runs:
           timeout=$(( timeout - 5 ))
         done
 
+    - name: Run tests
+      working-directory: ${{ inputs.path }}
+      env:
+        # Common
+        APP_SERVER: ${{ env.AUTH_REACT__APP_SERVER }}
+        NODE_PORT: ${{ env.AUTH_REACT__NODE_PORT }}
+        TEST_MODE: ${{ env.AUTH_REACT__TEST_MODE }}
+        # Step-specific
+        SCREENSHOT_ROOT: ${{ env.AUTH_REACT__SCREENSHOT_DIR }}
+      shell: bash
+      run: npx mocha
+
     - if: always()
-      uses: mxschmitt/action-tmate@v3
+      name: Fix paths
+      working-directory: ${{ inputs.path }}
+      shell: bash
+      run: |
+        # Doing it in the shell since the Reporter's `transformers` don't seem to work
+        sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test_report/test-results.xml
 
-    # - name: Run tests
-    #   working-directory: ${{ inputs.path }}
-    #   env:
-    #     # Common
-    #     APP_SERVER: ${{ env.AUTH_REACT__APP_SERVER }}
-    #     NODE_PORT: ${{ env.AUTH_REACT__NODE_PORT }}
-    #     TEST_MODE: ${{ env.AUTH_REACT__TEST_MODE }}
-    #     # Step-specific
-    #     SCREENSHOT_ROOT: ${{ env.AUTH_REACT__SCREENSHOT_DIR }}
-    #   shell: bash
-    #   run: npx mocha
+        # Make mochawesome screenshot paths relative. Workaround till we update it in auth-react.
+        sed -i "s|$AUTH_REACT__SCREENSHOT_DIR|../screenshots|g" test_report/mochawesome/mochawesome.html
 
-    # - if: always()
-    #   name: Fix paths
-    #   working-directory: ${{ inputs.path }}
-    #   shell: bash
-    #   run: |
-    #     # Doing it in the shell since the Reporter's `transformers` don't seem to work
-    #     sed -i "s|${{ github.workspace }}/${{ inputs.path }}/test||g" test_report/test-results.xml
+    # TODO: Figure out a generic way to get the app server logs here too
+    - if: always()
+      name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Auth React Tests ${{ inputs.check-name-suffix }}
+        path: ${{ inputs.path }}/test_report
 
-    #     # Make mochawesome screenshot paths relative. Workaround till we update it in auth-react.
-    #     sed -i "s|$AUTH_REACT__SCREENSHOT_DIR|../screenshots|g" test_report/mochawesome/mochawesome.html
-
-    # # TODO: Figure out a generic way to get the app server logs here too
-    # - if: always()
-    #   name: Upload artifacts
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: Auth React Tests ${{ inputs.check-name-suffix }}
-    #     path: ${{ inputs.path }}/test_report
-
-    # - if: always()
-    #   name: Reporter
-    #   # Alternative: dorny/test-reporter@v1 - does not create a summary
-    #   uses: mikepenz/action-junit-report@v5
-    #   with:
-    #     report_paths: ${{ inputs.path }}/test_report/test-results.xml
-    #     check_name: Auth React Tests ${{ inputs.check-name-suffix }}
-    #     # Include table with all test results in the summary
-    #     detailed_summary: true
-    #     # Group the testcases by test suite in the detailed_summary
-    #     group_suite: true
-    #     # Fail if no test are found.
-    #     require_tests: true
-    #     # Fail the build in case of a test failure.
-    #     fail_on_failure: true
+    - if: always()
+      name: Reporter
+      # Alternative: dorny/test-reporter@v1 - does not create a summary
+      uses: mikepenz/action-junit-report@v5
+      with:
+        report_paths: ${{ inputs.path }}/test_report/test-results.xml
+        check_name: Auth React Tests ${{ inputs.check-name-suffix }}
+        # Include table with all test results in the summary
+        detailed_summary: true
+        # Group the testcases by test suite in the detailed_summary
+        group_suite: true
+        # Fail if no test are found.
+        require_tests: true
+        # Fail the build in case of a test failure.
+        fail_on_failure: true
