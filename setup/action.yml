@@ -52,9 +52,9 @@ outputs:
     description: Port for auth-react frontend application
     value: ${{ steps.envs.outputs.AUTH_REACT__PORT }}
 
-  test-files:
+  specs:
     description: JSON list of test files in the e2e directory
-    value: ${{ steps.envs.outputs.test-files }}
+    value: ${{ steps.envs.outputs.specs }}
 
 runs:
   using: composite
@@ -79,7 +79,7 @@ runs:
         echo "AUTH_REACT__TEST_MODE=testing" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
         echo "AUTH_REACT__PORT=3031" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
 
-        echo "test-files=$(find 'test/end-to-end' -name '*.test.js' -type f | jq -Rsc 'split("\n")[:-1]')" | tee -a "$GITHUB_OUTPUT"
+        echo "specs=$(find 'test/end-to-end' -name '*.test.js' -type f | jq -Rsc 'split("\n")[:-1]')" | tee -a "$GITHUB_OUTPUT"
 
     - name: Setup auth-react
       working-directory: ${{ inputs.path }}
