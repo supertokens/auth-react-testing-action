@@ -114,7 +114,8 @@ runs:
         sed -i "s|$AUTH_REACT__SCREENSHOT_DIR|../screenshots|g" test_report/mochawesome/mochawesome.html
 
         # Replace `/` with `__` in check name suffix for artifact names
-        echo "VALID_CHECK_NAME=${${{ inputs.check-name-suffix }}//\//__}" | tee -a "$GITHUB_ENV"
+        VALID_CHECK_NAME=$(echo '${{ inputs.check-name-suffix }}' | sed "s|/|__|g")
+        echo "VALID_CHECK_NAME=$VALID_CHECK_NAME" | tee -a "$GITHUB_ENV"
 
     # TODO: Figure out a generic way to get the app server logs here too
     - if: always()
