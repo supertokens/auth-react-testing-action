@@ -113,12 +113,15 @@ runs:
         # Make mochawesome screenshot paths relative. Workaround till we update it in auth-react.
         sed -i "s|$AUTH_REACT__SCREENSHOT_DIR|../screenshots|g" test_report/mochawesome/mochawesome.html
 
+        # Replace `/` with `__` in check name suffix for artifact names
+        echo "VALID_CHECK_NAME=${${{ inputs.check-name-suffix }}//\//__}" | tee -a "$GITHUB_ENV"
+
     # TODO: Figure out a generic way to get the app server logs here too
     - if: always()
       name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Auth React Tests ${{ inputs.check-name-suffix }}
+        name: Auth React Tests ${{ env.VALID_CHECK_NAME }}
         path: ${{ inputs.path }}/test_report
 
     - if: always()
