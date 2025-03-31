@@ -27,6 +27,11 @@ inputs:
     required: false
     default: 'true'
 
+  use-common-app-and-test-server:
+    description: Use the same server as the App and Test server. `APP_SERVER` will be set to the same value as `NODE_PORT`.
+    required: false
+    default: 'false'
+
 outputs:
   AUTH_REACT__LOG_DIR:
     description: Log directory for various processes
@@ -74,8 +79,15 @@ runs:
       run: |
         echo "AUTH_REACT__LOG_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/logs" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
         echo "AUTH_REACT__SCREENSHOT_DIR=${{ github.workspace }}/${{ inputs.path }}/test_report/screenshots" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
-        echo "AUTH_REACT__APP_SERVER=8083" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
+
         echo "AUTH_REACT__NODE_PORT=8082" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
+
+        if [ "${{ inputs.use-common-app-and-test-server }}" == 'true' ]; then
+          echo "AUTH_REACT__APP_SERVER=8082" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
+        else
+          echo "AUTH_REACT__APP_SERVER=8083" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
+        fi
+
         echo "AUTH_REACT__TEST_MODE=testing" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
         echo "AUTH_REACT__PORT=3031" | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
 
