@@ -70,7 +70,7 @@ runs:
       with:
         repository: supertokens/supertokens-auth-react
         # ref: ${{ inputs.auth-react-version }}
-        ref: ci/github-actions/auth-react/v0.48.0
+        ref: ci/github-actions/auth-react/${{ inputs.auth-react-version }}
         path: ${{ inputs.path }}
 
     - name: Setup envs
