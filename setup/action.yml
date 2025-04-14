@@ -69,8 +69,7 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: supertokens/supertokens-auth-react
-        # ref: ${{ inputs.auth-react-version }}
-        ref: ci/github-actions/auth-react/${{ inputs.auth-react-version }}
+        ref: ${{ inputs.auth-react-version }}
         path: ${{ inputs.path }}
 
     - name: Setup envs
