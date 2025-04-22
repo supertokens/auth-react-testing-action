@@ -102,6 +102,9 @@ runs:
       shell: bash
       run: npx mocha --spec ${{ inputs.spec }}
 
+    - if: failure()
+      uses: mxschmitt/action-tmate@v3
+
     - if: always()
       name: Fix paths
       working-directory: ${{ inputs.path }}
