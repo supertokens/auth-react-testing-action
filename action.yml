@@ -102,6 +102,8 @@ runs:
         SPEC: ${{ inputs.spec }}
       shell: bash
       run: |
+        set +e
+
         tries=0
         max_tries=3
         command="npx mocha --spec $SPEC"
