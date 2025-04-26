@@ -123,6 +123,11 @@ runs:
 
         done
 
+    - if: failure()
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: false
+
     - if: always()
       name: Fix paths
       working-directory: ${{ inputs.path }}
