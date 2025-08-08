@@ -24,11 +24,17 @@ inputs:
   spec:
     description: Argument to pass to `--spec` in the test run
 
+  retrieve-workspace:
+    description: Whether to retrieve the workspace from the cache. Retrieve manually if set to false.
+    required: false
+    default: 'true'
+
 runs:
   using: composite
 
   steps:
-    - uses: bissolli/gh-action-persist-workspace@v2
+    - if: ${{ inputs.retrieve-workspace == 'true' || inputs.retrieve-workspace == true }}
+      uses: bissolli/gh-action-persist-workspace@v2
       with:
         action: retrieve
         artifactName: auth-react-${{ inputs.fdi-version }}

@@ -32,6 +32,11 @@ inputs:
     required: false
     default: 'false'
 
+  persist-workspace:
+    description: Whether to persist the workspace as part of the setup. Persist manually if set to false.
+    required: false
+    default: 'true'
+
 outputs:
   AUTH_REACT__LOG_DIR:
     description: Log directory for various processes
@@ -134,7 +139,8 @@ runs:
         npm i
         npm run prep
 
-    - uses: bissolli/gh-action-persist-workspace@v2
+    - if: ${{ inputs.persist-workspace == 'true' || inputs.persist-workspace == true }}
+      uses: bissolli/gh-action-persist-workspace@v2
       with:
         action: persist
         artifactName: auth-react-${{ inputs.fdi-version }}
