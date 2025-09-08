@@ -27,19 +27,29 @@ inputs:
   retrieve-workspace:
     description: Whether to retrieve the workspace from the cache. Retrieve manually if set to false.
     required: false
-    default: 'true'
+    default: "true"
 
 runs:
   using: composite
 
   steps:
+    - name: Set testing platform
+      shell: bash
+      run: |
+        if [[ "${{ inputs.spec }}" == *"nextjs"* ]]; then
+          echo "TESTING_PLATFORM=nextjs" >> $GITHUB_ENV
+        else
+          echo "TESTING_PLATFORM=react" >> $GITHUB_ENV
+        fi
+
     - if: ${{ inputs.retrieve-workspace == 'true' || inputs.retrieve-workspace == true }}
       uses: bissolli/gh-action-persist-workspace@v2
       with:
         action: retrieve
         artifactName: auth-react-${{ inputs.fdi-version }}
 
-    - name: Start auth-react test server
+    - if: ${{ env.TESTING_PLATFORM == 'react' }}
+      name: Start auth-react test server
       working-directory: ${{ inputs.path }}/test/server/
       env:
         # Common
@@ -49,7 +59,8 @@ runs:
       shell: bash
       run: node . &> $AUTH_REACT__LOG_DIR/backend.log &
 
-    - name: Start auth-react frontend application
+    - if: ${{ env.TESTING_PLATFORM == 'react' }}
+      name: Start auth-react frontend application
       working-directory: ${{ inputs.path }}/examples/for-tests/
       env:
         # Common
@@ -64,11 +75,24 @@ runs:
       shell: bash
       run: npx react-scripts start &> $AUTH_REACT__LOG_DIR/frontend.log &
 
+    - if: ${{ env.TESTING_PLATFORM == 'nextjs' }}
+      name: Start auth-react nextjs server
+      working-directory: ${{ inputs.path }}/examples/for-tests-nextjs/
+      env:
+        # Common
+        APP_SERVER: ${{ env.AUTH_REACT__APP_SERVER }}
+        # Step-specific
+        CI: true
+        PORT: ${{ env.AUTH_REACT__PORT }}
+      shell: bash
+      run: npm run dev &> $AUTH_REACT__LOG_DIR/frontend.log &
+
     - name: Wait for servers
       env:
         APP_SERVER: ${{ env.AUTH_REACT__APP_SERVER }}
         NODE_PORT: ${{ env.AUTH_REACT__NODE_PORT }}
         PORT: ${{ env.AUTH_REACT__PORT }}
+        TESTING_PLATFORM: ${{ env.TESTING_PLATFORM }}
       shell: bash
       run: |
         function wait-for() {
@@ -86,8 +110,12 @@ runs:
         }
 
         wait-for $PORT "frontend"
-        wait-for $NODE_PORT "test server"
-        wait-for $APP_SERVER "app server"
+
+        if [ "$TESTING_PLATFORM" = "react" ]; then
+          wait-for $NODE_PORT "test server"
+          wait-for $APP_SERVER "app server"
+        fi
+
 
         timeout=10
         until [ $timeout -le 0 ] || (curl -s localhost:$1 &> /dev/null); do
