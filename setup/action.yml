@@ -25,17 +25,17 @@ inputs:
   should-clone:
     description: Whether the `supertokens-auth-react` repo should be cloned
     required: false
-    default: 'true'
+    default: "true"
 
   use-common-app-and-test-server:
     description: Use the same server as the App and Test server. `APP_SERVER` will be set to the same value as `NODE_PORT`.
     required: false
-    default: 'false'
+    default: "false"
 
   persist-workspace:
     description: Whether to persist the workspace as part of the setup. Persist manually if set to false.
     required: false
-    default: 'true'
+    default: "true"
 
 outputs:
   AUTH_REACT__LOG_DIR:
@@ -129,6 +129,19 @@ runs:
         APP_SERVER: ${{ env.AUTH_REACT__APP_SERVER }}
         NODE_PORT: ${{ env.AUTH_REACT__NODE_PORT }}
         TEST_MODE: ${{ env.AUTH_REACT__TEST_MODE }}
+        # Step-specific
+        CI: true
+        BROWSER: none
+        PORT: ${{ env.AUTH_REACT__PORT }}
+        REACT_APP_API_PORT: ${{ env.AUTH_REACT__APP_SERVER }}
+      shell: bash
+      run: |
+        npm i
+        npm run prep
+
+    - name: Setup auth-react nextjs application
+      working-directory: ${{ inputs.path }}/examples/for-tests-nextjs/
+      env:
         # Step-specific
         CI: true
         BROWSER: none
