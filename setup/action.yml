@@ -98,6 +98,12 @@ runs:
         cd ${{ github.workspace }}/${{ inputs.path }}
         echo "specs=$(find 'test/end-to-end' -name '*.test.js' -type f | sort | jq -Rsc 'split("\n")[:-1]' | jq -r 'tostring')" | tee -a "$GITHUB_OUTPUT"
 
+        if [ -d ${{ github.workspace }}/${{ inputs.path }}/examples/for-tests-nextjs/ ]; then
+          echo HAS_NEXTJS_EXAMPLES=true | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
+        else
+          echo HAS_NEXTJS_EXAMPLES=false | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
+        fi
+
     - name: Setup auth-react
       working-directory: ${{ inputs.path }}
       env:
@@ -139,7 +145,8 @@ runs:
         npm i
         npm run prep
 
-    - name: Setup auth-react nextjs application
+    - if: ${{ env.HAS_NEXTJS_EXAMPLES == 'true' || env.HAS_NEXTJS_EXAMPLES == true }}
+      name: Setup auth-react nextjs application
       working-directory: ${{ inputs.path }}/examples/for-tests-nextjs/
       env:
         # Step-specific
