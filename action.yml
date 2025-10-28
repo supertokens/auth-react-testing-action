@@ -81,7 +81,7 @@ runs:
       shell: bash
       run: npx react-scripts start &> $AUTH_REACT__LOG_DIR/frontend.log &
 
-    - if: ${{ env.HAS_NEXTJS_EXAMPLES == 'true' || env.HAS_NEXTJS_EXAMPLES == true }} && ${{ env.TESTING_PLATFORM == 'nextjs' }}
+    - if: ${{ env.TESTING_PLATFORM == 'nextjs' }}
       name: Start auth-react nextjs server
       working-directory: ${{ inputs.path }}/examples/for-tests-nextjs/
       env:
@@ -91,7 +91,15 @@ runs:
         CI: true
         PORT: ${{ env.AUTH_REACT__PORT }}
       shell: bash
-      run: npm run dev &> $AUTH_REACT__LOG_DIR/frontend.log &
+      run: |
+        if [ "$TESTING_PLATFORM" == "nextjs" ]; then
+          if [ "$HAS_NEXTJS_EXAMPLES" == "true" ]; then
+            npm run dev &> $AUTH_REACT__LOG_DIR/frontend.log &
+          else
+            echo "nextjs test found but examples not found."
+            exit 1
+          fi
+        fi
 
     - name: Wait for servers
       env:

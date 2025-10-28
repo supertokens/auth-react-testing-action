@@ -145,8 +145,7 @@ runs:
         npm i
         npm run prep
 
-    - if: ${{ env.HAS_NEXTJS_EXAMPLES == 'true' || env.HAS_NEXTJS_EXAMPLES == true }}
-      name: Setup auth-react nextjs application
+    - name: Setup auth-react nextjs application
       working-directory: ${{ inputs.path }}/examples/for-tests-nextjs/
       env:
         # Step-specific
@@ -156,8 +155,15 @@ runs:
         REACT_APP_API_PORT: ${{ env.AUTH_REACT__APP_SERVER }}
       shell: bash
       run: |
-        npm i
-        npm run prep
+        if [ "$TESTING_PLATFORM" == "nextjs" ]; then
+          if [ "$HAS_NEXTJS_EXAMPLES" == "true" ]; then
+            npm i
+            npm run prep
+          else
+            echo "nextjs test found but examples not found."
+            exit 1
+          fi
+        fi
 
     - if: ${{ inputs.persist-workspace == 'true' || inputs.persist-workspace == true }}
       uses: bissolli/gh-action-persist-workspace@v2
