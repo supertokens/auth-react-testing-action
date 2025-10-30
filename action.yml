@@ -81,6 +81,9 @@ runs:
       shell: bash
       run: npx react-scripts start &> $AUTH_REACT__LOG_DIR/frontend.log &
 
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+
     - if: ${{ env.TESTING_PLATFORM == 'nextjs' }}
       name: Start auth-react nextjs server
       working-directory: ${{ inputs.path }}/examples/for-tests-nextjs/
