@@ -36,7 +36,7 @@ runs:
     - name: Set testing platform
       shell: bash
       run: |
-        if [ -d ${{ github.workspace }}/${{ inputs.path }}/examples/for-tests-nextjs/ ]; then
+        if [ -d ${{ inputs.path }}/examples/for-tests-nextjs/ ]; then
           echo HAS_NEXTJS_EXAMPLES=true | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
         else
           echo HAS_NEXTJS_EXAMPLES=false | tee -a "$GITHUB_OUTPUT" "$GITHUB_ENV"
